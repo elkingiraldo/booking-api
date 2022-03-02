@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  apigateway:
+    container_name: booking-api
+    image: booking-api
+    build:
+      context: .
+      dockerfile: Dokerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app:/home
