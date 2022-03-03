@@ -8,4 +8,4 @@ VOLUME [ "/home" ]
 
 ADD target/booking-api-0.0.1-SNAPSHOT.jar booking-api.jar
 
-ENTRYPOINT [ "java", "-jar", "booking-api.jar" ]
+ENTRYPOINT [ "java", "-jar", "-Dspring.profiles.active=docker", "booking-api.jar" ]
