@@ -7,7 +7,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.Email;
 
 import lombok.Data;
 
@@ -21,8 +20,8 @@ public class User implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-
-	@Email
-	private String email;
-	private String password;
+	
+	private String nickname;
+	private String name;
+	private String lastName;
 }

@@ -35,6 +35,7 @@ public class UserController {
 	/**
 	 * @param userDTO this is a test parameter
 	 * @return some response description
+	 * @throws APIServiceException 
 	 */
 	@Operation(summary = "Create a new user",
 			description = "This endpoint allows you to create new users")
@@ -42,7 +43,7 @@ public class UserController {
 	public ResponseEntity<UserDTO> create(
 			@RequestBody final UserDTO userDTO,
 			@RequestHeader(value = "locale", required = false) final String locale
-	) {
+	) throws APIServiceException {
 		LOGGER.info("[UserController][create]");
 		var userCreated = userService.create(userDTO);
 
@@ -55,14 +56,14 @@ public class UserController {
 	 * @throws APIServiceException 
 	 */
 	@Operation(summary = "Retrieve an user",
-			description = "This endpoint allows you to tetrieve an user by email provided")
-	@GetMapping("/{email}")
+			description = "This endpoint allows you to tetrieve an user by nickname provided")
+	@GetMapping("/{nickname}")
 	public ResponseEntity<UserDTO> retrieve(
-			@PathVariable(value = "email") final String email,
+			@PathVariable(value = "nickname") final String nickname,
 			@RequestHeader(value = "locale", required = false) final String locale
 	) throws APIServiceException {
 		LOGGER.info("[UserController][retrieve]");
-		var userFound = userService.retrieveByEmail(email);
+		var userFound = userService.retrieveByNickname(nickname);
 
 		return new ResponseEntity<>(userFound, HttpStatus.OK);
 	}

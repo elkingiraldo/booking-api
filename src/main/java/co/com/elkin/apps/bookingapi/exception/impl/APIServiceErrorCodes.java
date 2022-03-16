@@ -13,10 +13,16 @@ public enum APIServiceErrorCodes implements IAPIServiceErrorMsg {
 
 	GENERAL_EXCEPTION("general.exception", HttpStatus.INTERNAL_SERVER_ERROR),
 	
+	USER_ALREADY_CREATED_EXCEPTION("user.already.created.exception", HttpStatus.CONFLICT),
+	USER_LAST_NAME_CANT_BE_EMPTY_EXCEPTION("user.last.name.cant.be.empty.exception", HttpStatus.UNPROCESSABLE_ENTITY),
+	USER_NAME_CANT_BE_EMPTY_EXCEPTION("user.name.cant.be.empty.exception", HttpStatus.UNPROCESSABLE_ENTITY),
+	USER_NICKNAME_CANT_BE_EMPTY_EXCEPTION("user.nickname.cant.be.empty.exception", HttpStatus.UNPROCESSABLE_ENTITY),
 	USER_NOT_FOUND_EXCEPTION("user.not.found.exception", HttpStatus.NOT_FOUND);
-
+	
 	private String message;
+	
 	private HttpStatus httpStatus;
+	
 	private String errorDetail;
 
 	private APIServiceErrorCodes(final String message, final HttpStatus httpStatus) {

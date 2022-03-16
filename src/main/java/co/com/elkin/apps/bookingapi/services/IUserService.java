@@ -5,7 +5,7 @@ import co.com.elkin.apps.bookingapi.exception.APIServiceException;
 
 public interface IUserService {
 
-    UserDTO create(final UserDTO userDTO);
+	UserDTO create(final UserDTO userDTO) throws APIServiceException;
     
-    UserDTO retrieveByEmail(final String email) throws APIServiceException;
+    UserDTO retrieveByNickname(final String nickname) throws APIServiceException;
 }
