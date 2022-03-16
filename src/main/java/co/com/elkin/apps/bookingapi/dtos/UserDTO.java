@@ -1,4 +1,4 @@
-package co.com.elkin.apps.bookingapi.dto;
+package co.com.elkin.apps.bookingapi.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
