@@ -1,6 +1,7 @@
 package co.com.elkin.apps.bookingapi.controllers;
 
 import co.com.elkin.apps.bookingapi.dtos.UserDTO;
+import co.com.elkin.apps.bookingapi.exception.APIServiceException;
 import co.com.elkin.apps.bookingapi.services.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ public class UserController {
 	/**
 	 * @param email this is a test parameter
 	 * @return some response description
+	 * @throws APIServiceException 
 	 */
 	@Operation(summary = "Retrieve an user",
 			description = "This endpoint allows you to tetrieve an user by email provided")
@@ -58,7 +60,7 @@ public class UserController {
 	public ResponseEntity<UserDTO> retrieve(
 			@PathVariable(value = "email") final String email,
 			@RequestHeader(value = "locale", required = false) final String locale
-	) {
+	) throws APIServiceException {
 		LOGGER.info("[UserController][retrieve]");
 		var userFound = userService.retrieveByEmail(email);
 

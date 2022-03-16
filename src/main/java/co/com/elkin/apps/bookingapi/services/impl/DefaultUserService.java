@@ -3,9 +3,12 @@ package co.com.elkin.apps.bookingapi.services.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import co.com.elkin.apps.bookingapi.dtos.UserDTO;
+import co.com.elkin.apps.bookingapi.exception.APIServiceException;
+import co.com.elkin.apps.bookingapi.exception.impl.APIServiceErrorCodes;
 import co.com.elkin.apps.bookingapi.repositories.UserRepository;
 import co.com.elkin.apps.bookingapi.services.IUserService;
 import co.com.elkin.apps.bookingapi.services.converters.IUserConverterService;
@@ -38,12 +41,13 @@ public class DefaultUserService implements IUserService {
     }
 
 	@Override
-	public UserDTO retrieveByEmail(final String email) {
+	public UserDTO retrieveByEmail(final String email) throws APIServiceException {
 		LOGGER.info("[DefaultUserService][retrieveByEmail]"+email);
 		var optionalUser = userRepository.findByEmail(email);
 		
 		if (optionalUser.isEmpty()) {
-			return null;
+			throw new APIServiceException(HttpStatus.NOT_FOUND.getReasonPhrase(),
+					APIServiceErrorCodes.USER_NOT_FOUND_EXCEPTION);
 		}
 		
 		return userConverterService.toDTO(optionalUser.get());
