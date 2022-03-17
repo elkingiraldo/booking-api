@@ -16,6 +16,8 @@ import co.com.elkin.apps.bookingapi.services.IReservationService;
 import co.com.elkin.apps.bookingapi.services.IRoomReservedService;
 import co.com.elkin.apps.bookingapi.services.IRoomService;
 import co.com.elkin.apps.bookingapi.services.IUserService;
+import co.com.elkin.apps.bookingapi.services.converters.IRoomConverterService;
+import co.com.elkin.apps.bookingapi.services.converters.IUserConverterService;
 
 @Service
 public class DefaultBookingService implements IBookingService {
@@ -24,18 +26,22 @@ public class DefaultBookingService implements IBookingService {
 
 	private final IUserService userService;
 
+	private final IUserConverterService userConverterService;
+
 	private final IRoomService roomService;
 
-	private final IRoomReservedService roomReservedService;
+	private final IRoomConverterService roomConverterService;
 
 	private final IReservationService reservationService;
 
 	@Autowired
-	public DefaultBookingService(final IUserService userService, final IRoomService roomService,
-			final IRoomReservedService roomReservedService, final IReservationService reservationService) {
+	public DefaultBookingService(final IUserService userService, final IUserConverterService userConverterService,
+			final IRoomService roomService, final IRoomReservedService roomReservedService,
+			final IRoomConverterService roomConverterService, final IReservationService reservationService) {
 		this.userService = userService;
+		this.userConverterService = userConverterService;
 		this.roomService = roomService;
-		this.roomReservedService = roomReservedService;
+		this.roomConverterService = roomConverterService;
 		this.reservationService = reservationService;
 	}
 
@@ -44,12 +50,15 @@ public class DefaultBookingService implements IBookingService {
 		LOGGER.info("[DefaultBookingService][create]");
 
 		var user = userService.retrieveEntityByNickname(bookingDTO.getNickname());
+		var room = roomService.getRoom();
 		var price = getPrice(bookingDTO);
-		var reservationCreated = reservationService.create(bookingDTO, user, price);
 
-		roomReservedService.create(reservationCreated, price);
+		var reservationCreated = reservationService.create(bookingDTO, user, price, room);
 
-		return ReservationDTO.builder().startDate(bookingDTO.getStartDate()).endDate(bookingDTO.getEndDate()).build();
+		return ReservationDTO.builder().startDate(reservationCreated.getStartDate())
+				.endDate(reservationCreated.getEndDate()).reservationId(String.valueOf(reservationCreated.getId()))
+				.totalPrice(price).room(roomConverterService.toDTO(room)).user(userConverterService.toDTO(user))
+				.build();
 	}
 
 	private float getPrice(final BookingDTO bookingDTO) {
