@@ -30,4 +30,4 @@ CREATE TABLE ROOM_TBL (
 
 INSERT INTO USER_TBL (nickname, name, last_name) VALUES ('elkingtest1', 'Elkin Test', 'Giraldo Test');
 
-
+INSERT INTO ROOM_TBL (name, current_price) VALUES ('T1-234', 123456.7);
