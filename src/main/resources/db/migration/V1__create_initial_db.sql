@@ -6,7 +6,7 @@ CREATE TABLE USER_TBL (
 );
 
 CREATE TABLE RESERVATION_TBL (
-	id uuid DEFAULT random_uuid() PRIMARY KEY,
+	id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     ts_created TIMESTAMP NOT NULL,
@@ -30,4 +30,4 @@ CREATE TABLE ROOM_TBL (
 
 INSERT INTO USER_TBL (nickname, name, last_name) VALUES ('elkingiraldo91', 'Elkin Giovanni', 'Giraldo Pinedo');
 
-INSERT INTO ROOM_TBL (name, current_price) VALUES ('T2-303', 69000.5);
+
