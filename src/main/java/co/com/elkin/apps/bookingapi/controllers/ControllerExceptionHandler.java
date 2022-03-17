@@ -29,7 +29,7 @@ import co.com.elkin.apps.bookingapi.exception.impl.APIServiceErrorCodes;
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
 	private static final String LOCALE_HEADER_NAME = "locale";
-	private static final UnaryOperator<String> ERROR_MESSAGE = msg -> "Task Manager API service -> exception occurred"
+	private static final UnaryOperator<String> ERROR_MESSAGE = msg -> "Booking API service -> exception occurred"
 			+ msg;
 
 	@Value("${spring.application.name}")

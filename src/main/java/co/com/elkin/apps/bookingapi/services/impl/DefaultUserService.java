@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import co.com.elkin.apps.bookingapi.dtos.UserDTO;
+import co.com.elkin.apps.bookingapi.entities.User;
 import co.com.elkin.apps.bookingapi.exception.APIServiceException;
 import co.com.elkin.apps.bookingapi.exception.impl.APIServiceErrorCodes;
 import co.com.elkin.apps.bookingapi.repositories.UserRepository;
@@ -25,14 +26,14 @@ public class DefaultUserService implements IUserService {
 
 	private static final String LAST_NAME_NULL = "lastName null";
 
-	private final UserRepository userRepository;
+	private final UserRepository repository;
 
-	private final IUserConverterService userConverterService;
+	private final IUserConverterService converterService;
 
 	@Autowired
-	public DefaultUserService(final UserRepository userRepository, final IUserConverterService userConverterService) {
-		this.userRepository = userRepository;
-		this.userConverterService = userConverterService;
+	public DefaultUserService(final UserRepository repository, final IUserConverterService converterService) {
+		this.repository = repository;
+		this.converterService = converterService;
 	}
 
 	@Override
@@ -40,27 +41,40 @@ public class DefaultUserService implements IUserService {
 		LOGGER.info("[DefaultUserService][create]");
 		validateDTO(userDTO);
 
-		var optionalUser = userRepository.findByNickname(userDTO.getNickname());
+		var optionalUser = repository.findByNickname(userDTO.getNickname());
 		if (optionalUser.isPresent()) {
 			throw new APIServiceException(HttpStatus.CONFLICT.getReasonPhrase(),
 					APIServiceErrorCodes.USER_ALREADY_CREATED_EXCEPTION);
 		}
-		var createdUser = userRepository.save(userConverterService.toEntity(userDTO));
+		var createdUser = repository.save(converterService.toEntity(userDTO));
 
-		return userConverterService.toDTO(createdUser);
+		return converterService.toDTO(createdUser);
 	}
 
 	@Override
 	public UserDTO retrieveByNickname(final String nickname) throws APIServiceException {
 		LOGGER.info("[DefaultUserService][retrieveByNickname][" + nickname + "]");
-		var optionalUser = userRepository.findByNickname(nickname);
+		var optionalUser = repository.findByNickname(nickname);
 
 		if (optionalUser.isEmpty()) {
 			throw new APIServiceException(HttpStatus.NOT_FOUND.getReasonPhrase(),
 					APIServiceErrorCodes.USER_NOT_FOUND_EXCEPTION);
 		}
 
-		return userConverterService.toDTO(optionalUser.get());
+		return converterService.toDTO(optionalUser.get());
+	}
+
+	@Override
+	public User retrieveEntityByNickname(String nickname) throws APIServiceException {
+		LOGGER.info("[DefaultUserService][retrieveEntityByNickname][" + nickname + "]");
+		var optionalUser = repository.findByNickname(nickname);
+
+		if (optionalUser.isEmpty()) {
+			throw new APIServiceException(HttpStatus.NOT_FOUND.getReasonPhrase(),
+					APIServiceErrorCodes.USER_NOT_FOUND_EXCEPTION);
+		}
+
+		return optionalUser.get();
 	}
 
 	private void validateDTO(final UserDTO userDTO) throws APIServiceException {

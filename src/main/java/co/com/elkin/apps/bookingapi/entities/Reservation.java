@@ -11,13 +11,17 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Entity
+@Builder
 @Table(name = "RESERVATION_TBL")
 public class Reservation implements Serializable {
 
@@ -32,6 +36,10 @@ public class Reservation implements Serializable {
 	private Timestamp tsCreated;
 	private Timestamp tsUpdated;
 	private float totalPrice;
+
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
 	private Set<RoomReserved> roomReserved;
