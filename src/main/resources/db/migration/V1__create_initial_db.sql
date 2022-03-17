@@ -17,7 +17,7 @@ CREATE TABLE RESERVATION_TBL (
 
 CREATE TABLE ROOM_RESERVED_TBL (
 	id SERIAL PRIMARY KEY,
-    reservetion_id INTEGER NOT NULL,
+    reservation_id uuid NOT NULL,
     room_id INTEGER NOT NULL,
     price DECIMAL(10,2) NOT NULL
 );

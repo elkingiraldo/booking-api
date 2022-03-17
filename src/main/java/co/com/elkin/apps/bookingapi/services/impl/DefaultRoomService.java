@@ -12,7 +12,7 @@ import co.com.elkin.apps.bookingapi.services.IRoomService;
 @Service
 public class DefaultRoomService implements IRoomService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBookingService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRoomService.class);
 
 	private final RoomRepository repository;
 

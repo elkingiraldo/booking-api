@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 
 import co.com.elkin.apps.bookingapi.dtos.BookingDTO;
 import co.com.elkin.apps.bookingapi.dtos.ReservationDTO;
-import co.com.elkin.apps.bookingapi.entities.RoomReserved;
 import co.com.elkin.apps.bookingapi.exception.APIServiceException;
 import co.com.elkin.apps.bookingapi.services.IBookingService;
 import co.com.elkin.apps.bookingapi.services.IReservationService;
+import co.com.elkin.apps.bookingapi.services.IRoomReservedService;
 import co.com.elkin.apps.bookingapi.services.IRoomService;
 import co.com.elkin.apps.bookingapi.services.IUserService;
 
@@ -26,13 +26,16 @@ public class DefaultBookingService implements IBookingService {
 
 	private final IRoomService roomService;
 
+	private final IRoomReservedService roomReservedService;
+
 	private final IReservationService reservationService;
 
 	@Autowired
 	public DefaultBookingService(final IUserService userService, final IRoomService roomService,
-			final IReservationService reservationService) {
+			final IRoomReservedService roomReservedService, final IReservationService reservationService) {
 		this.userService = userService;
 		this.roomService = roomService;
+		this.roomReservedService = roomReservedService;
 		this.reservationService = reservationService;
 	}
 
@@ -41,9 +44,12 @@ public class DefaultBookingService implements IBookingService {
 		LOGGER.info("[DefaultBookingService][create]");
 
 		var user = userService.retrieveEntityByNickname(bookingDTO.getNickname());
-		var roomReserved = RoomReserved.builder().room(roomService.getRoom()).price(getPrice(bookingDTO)).build();
+		var price = getPrice(bookingDTO);
+		var reservationCreated = reservationService.create(bookingDTO, user, price);
 
-		return reservationService.create(bookingDTO, user, roomReserved);
+		roomReservedService.create(reservationCreated, price);
+
+		return ReservationDTO.builder().startDate(bookingDTO.getStartDate()).endDate(bookingDTO.getEndDate()).build();
 	}
 
 	private float getPrice(final BookingDTO bookingDTO) {
