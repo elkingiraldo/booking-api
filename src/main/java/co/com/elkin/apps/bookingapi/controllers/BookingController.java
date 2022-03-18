@@ -37,13 +37,10 @@ public class BookingController {
 	 * @return some response description
 	 * @throws APIServiceException
 	 */
-	@Operation(summary = "Create a new reservation", 
-			description = "This endpoint allows you to create new reservation")
+	@Operation(summary = "Create a new reservation", description = "This endpoint allows you to create new reservation")
 	@PostMapping
-	public ResponseEntity<ReservationDTO> create(
-			@RequestBody final BookingDTO bookingDTO,
-			@RequestHeader(value = "locale", required = false) final String locale
-	) throws APIServiceException {
+	public ResponseEntity<ReservationDTO> create(@RequestBody final BookingDTO bookingDTO,
+			@RequestHeader(value = "locale", required = false) final String locale) throws APIServiceException {
 		LOGGER.info("[BookingController][create]");
 		var reservationCreated = bookingService.create(bookingDTO);
 

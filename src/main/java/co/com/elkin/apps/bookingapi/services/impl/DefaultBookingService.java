@@ -5,7 +5,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,12 @@ public class DefaultBookingService implements IBookingService {
 
 	private static final int MAX_DAYS_DURATION_RESERVATION = 3;
 
+	private static final String START_DATE_NULL = "startDate null";
+
+	private static final String END_DATE_NULL = "endDate null";
+
+	private static final String NICKNAME_NULL = "nickname null";
+
 	private final IUserService userService;
 
 	private final IUserConverterService userConverterService;
@@ -58,7 +66,9 @@ public class DefaultBookingService implements IBookingService {
 	public ReservationDTO create(final BookingDTO bookingDTO) throws APIServiceException {
 		LOGGER.info("[DefaultBookingService][create]");
 
+		validateDTO(bookingDTO);
 		validateDates(bookingDTO);
+
 		var price = getPrice(bookingDTO);
 		var user = userService.retrieveEntityByNickname(bookingDTO.getNickname());
 		var room = roomService.getRoom();
@@ -69,6 +79,21 @@ public class DefaultBookingService implements IBookingService {
 				.endDate(reservationCreated.getEndDate()).reservationId(String.valueOf(reservationCreated.getId()))
 				.totalPrice(price).room(roomConverterService.toDTO(room)).user(userConverterService.toDTO(user))
 				.build();
+	}
+
+	private void validateDTO(final BookingDTO bookingDTO) throws APIServiceException {
+		if (Objects.nonNull(bookingDTO.getStartDate())
+				&& StringUtils.isEmpty(String.valueOf(bookingDTO.getStartDate()))) {
+			throw new APIServiceException(START_DATE_NULL, APIServiceErrorCodes.BOOKING_START_DATE_NULL_EXCEPTION);
+		}
+
+		if (Objects.nonNull(bookingDTO.getEndDate()) && StringUtils.isEmpty(String.valueOf(bookingDTO.getEndDate()))) {
+			throw new APIServiceException(END_DATE_NULL, APIServiceErrorCodes.BOOKING_END_DATE_NULL_EXCEPTION);
+		}
+
+		if (StringUtils.isEmpty(bookingDTO.getNickname())) {
+			throw new APIServiceException(NICKNAME_NULL, APIServiceErrorCodes.USER_NICKNAME_CANT_BE_EMPTY_EXCEPTION);
+		}
 	}
 
 	private void validateDates(final BookingDTO bookingDTO) throws APIServiceException {

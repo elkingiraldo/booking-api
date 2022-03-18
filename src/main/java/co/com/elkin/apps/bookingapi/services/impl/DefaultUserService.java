@@ -71,7 +71,7 @@ public class DefaultUserService implements IUserService {
 
 		if (optionalUser.isEmpty()) {
 			throw new APIServiceException(HttpStatus.NOT_FOUND.getReasonPhrase(),
-					APIServiceErrorCodes.USER_NOT_FOUND_EXCEPTION);
+					APIServiceErrorCodes.USER_SHOULD_BE_REGISTERED_EXCEPTION);
 		}
 
 		return optionalUser.get();

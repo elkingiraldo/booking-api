@@ -1,19 +1,22 @@
 package co.com.elkin.apps.bookingapi.dtos;
 
+import java.io.Serializable;
+
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.io.Serializable;
 
 @Getter
 @Setter
 @ToString
 public class UserDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private String nickname;
-    private String name;
-    private String lastName;
+	@NonNull
+	private String nickname;
+
+	private String name;
+	private String lastName;
 }
