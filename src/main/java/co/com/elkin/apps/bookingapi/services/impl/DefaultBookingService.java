@@ -1,16 +1,21 @@
 package co.com.elkin.apps.bookingapi.services.impl;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import co.com.elkin.apps.bookingapi.dtos.BookingDTO;
 import co.com.elkin.apps.bookingapi.dtos.ReservationDTO;
 import co.com.elkin.apps.bookingapi.exception.APIServiceException;
+import co.com.elkin.apps.bookingapi.exception.impl.APIServiceErrorCodes;
 import co.com.elkin.apps.bookingapi.services.IBookingService;
 import co.com.elkin.apps.bookingapi.services.IReservationService;
 import co.com.elkin.apps.bookingapi.services.IRoomReservedService;
@@ -23,6 +28,10 @@ import co.com.elkin.apps.bookingapi.services.converters.IUserConverterService;
 public class DefaultBookingService implements IBookingService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBookingService.class);
+
+	private static final int MAX_DAYS_RESERVATION_IN_ADVANCE = 30;
+
+	private static final int MAX_DAYS_DURATION_RESERVATION = 3;
 
 	private final IUserService userService;
 
@@ -49,9 +58,10 @@ public class DefaultBookingService implements IBookingService {
 	public ReservationDTO create(final BookingDTO bookingDTO) throws APIServiceException {
 		LOGGER.info("[DefaultBookingService][create]");
 
+		validateDates(bookingDTO);
+		var price = getPrice(bookingDTO);
 		var user = userService.retrieveEntityByNickname(bookingDTO.getNickname());
 		var room = roomService.getRoom();
-		var price = getPrice(bookingDTO);
 
 		var reservationCreated = reservationService.create(bookingDTO, user, price, room);
 
@@ -61,18 +71,52 @@ public class DefaultBookingService implements IBookingService {
 				.build();
 	}
 
+	private void validateDates(final BookingDTO bookingDTO) throws APIServiceException {
+		var startDate = getOffsetDateTime(bookingDTO.getStartDate());
+		var endDate = getOffsetDateTime(bookingDTO.getEndDate());
+
+		if (startDate.isAfter(endDate)) {
+			throw new APIServiceException(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+					APIServiceErrorCodes.BOOKING_START_DATE_AFTER_END_DATE_EXCEPTION);
+		}
+
+		if (getDifferenceDays(startDate, endDate) >= MAX_DAYS_DURATION_RESERVATION) {
+			throw new APIServiceException(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+					APIServiceErrorCodes.BOOKING_MAX_DURATION_RESERVATION_EXCEPTION);
+		}
+
+		var today = getCurrentOffsetDateTime();
+		var thirtyDaysLater = today.plusDays(MAX_DAYS_RESERVATION_IN_ADVANCE);
+		if (getDifferenceDays(startDate, today) >= 0 || startDate.isAfter(thirtyDaysLater)) {
+			throw new APIServiceException(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+					APIServiceErrorCodes.BOOKING_VALID_DAYS_RESERVATION_EXCEPTION);
+		}
+	}
+
 	private float getPrice(final BookingDTO bookingDTO) {
 		LOGGER.info("[DefaultBookingService][getPrice]");
-		var differenceDays = getDifferenceDays(bookingDTO.getStartDate(), bookingDTO.getEndDate());
+
+		var differenceDays = getDifferenceDays(getOffsetDateTime(bookingDTO.getStartDate()),
+				getOffsetDateTime(bookingDTO.getEndDate()));
 		var currentRoomPrice = roomService.getCurrentPrice();
 
 		return currentRoomPrice * (differenceDays + 1);
 	}
 
-	private long getDifferenceDays(final Date startDate, final Date endDate) {
+	private OffsetDateTime getOffsetDateTime(final Date date) {
+		LOGGER.info("[DefaultBookingService][getOffsetDateTime]");
+		return date.toInstant().atZone(ZoneId.systemDefault()).plusDays(1).truncatedTo(ChronoUnit.DAYS)
+				.toOffsetDateTime();
+	}
+
+	private OffsetDateTime getCurrentOffsetDateTime() {
+		LOGGER.info("[DefaultBookingService][getCurrentOffsetDateTime]");
+		return Instant.now().atZone(ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).toOffsetDateTime();
+	}
+
+	private long getDifferenceDays(final OffsetDateTime startDate, final OffsetDateTime endDate) {
 		LOGGER.info("[DefaultBookingService][getDifferenceDays]");
-		long diff = endDate.getTime() - startDate.getTime();
-		return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+		return startDate.until(endDate, ChronoUnit.DAYS);
 	}
 
 }
