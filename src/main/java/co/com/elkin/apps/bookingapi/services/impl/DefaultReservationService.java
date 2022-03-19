@@ -15,6 +15,7 @@ import co.com.elkin.apps.bookingapi.entities.Reservation;
 import co.com.elkin.apps.bookingapi.entities.Room;
 import co.com.elkin.apps.bookingapi.entities.RoomReserved;
 import co.com.elkin.apps.bookingapi.entities.User;
+import co.com.elkin.apps.bookingapi.enums.ReservationStatus;
 import co.com.elkin.apps.bookingapi.exception.APIServiceException;
 import co.com.elkin.apps.bookingapi.repositories.ReservationRepository;
 import co.com.elkin.apps.bookingapi.services.IReservationService;
@@ -45,7 +46,8 @@ public class DefaultReservationService implements IReservationService {
 		var tsCurrent = Timestamp.from(Instant.now());
 
 		var reservation = Reservation.builder().startDate(bookingDTO.getStartDate()).endDate(bookingDTO.getEndDate())
-				.tsCreated(tsCurrent).tsUpdated(tsCurrent).totalPrice(totalPrice).user(user).build();
+				.tsCreated(tsCurrent).tsUpdated(tsCurrent).totalPrice(totalPrice).user(user)
+				.status(ReservationStatus.SCHEDULED).deleted(false).build();
 		var reservationSaved = repository.saveAndFlush(reservation);
 
 		var roomReserved = RoomReserved.builder().room(room).price(totalPrice).reservation(reservationSaved).build();

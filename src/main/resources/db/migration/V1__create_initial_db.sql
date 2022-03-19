@@ -12,12 +12,14 @@ CREATE TABLE RESERVATION_TBL (
     ts_created TIMESTAMP NOT NULL,
     ts_updated TIMESTAMP NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,
-    user_id INTEGER NOT NULL
+    user_id INTEGER NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    deleted BOOLEAN NOT NULL
 );
 
 CREATE TABLE ROOM_RESERVED_TBL (
 	id SERIAL PRIMARY KEY,
-    reservation_id uuid,
+    reservation_id uuid NOT NULL,
     room_id INTEGER NOT NULL,
     price DECIMAL(10,2) NOT NULL
 );

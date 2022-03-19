@@ -6,6 +6,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import co.com.elkin.apps.bookingapi.constants.Constant;
+import co.com.elkin.apps.bookingapi.enums.ReservationStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -23,6 +24,7 @@ public class ReservationDTO implements Serializable {
 
 	private final String reservationId;
 	private final Float totalPrice;
+	private final ReservationStatus status;
 	private final RoomDTO room;
 	private final UserDTO user;
 }

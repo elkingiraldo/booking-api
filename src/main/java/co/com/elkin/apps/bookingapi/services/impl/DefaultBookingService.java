@@ -78,7 +78,7 @@ public class DefaultBookingService implements IBookingService {
 		return ReservationDTO.builder().startDate(reservationCreated.getStartDate())
 				.endDate(reservationCreated.getEndDate()).reservationId(String.valueOf(reservationCreated.getId()))
 				.totalPrice(price).room(roomConverterService.toDTO(room)).user(userConverterService.toDTO(user))
-				.build();
+				.status(reservationCreated.getStatus()).build();
 	}
 
 	private void validateDTO(final BookingDTO bookingDTO) throws APIServiceException {
