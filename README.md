@@ -107,7 +107,8 @@ There are several endpoints:
 ```
 * **GET** `/users/{nickname}` :arrow_right: Obtain information from a specific user.
 * **POST** `/booking` :arrow_right: Make a new reservation.
-:warning: The dates format available is `yyyy-MM-dd` :warning:
+
+:warning: **The dates format available is** `yyyy-MM-dd` :warning:
 ```
 {
     "startDate": "2022-04-04",
@@ -115,7 +116,7 @@ There are several endpoints:
     "nickname": "elkingiraldo91"
 }
 ```
-There are 4 possible states of the reservation:
+* There are 4 possible states of the reservation:
     * SCHEDULED :arrow_right: When the reservation is created.
 	* IN_PROGRESS :arrow_right: There is a reservation during the actual date.
 	* CANCELLED :arrow_right: When user cancelled the reservation.
