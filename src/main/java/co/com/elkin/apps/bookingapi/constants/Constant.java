@@ -9,4 +9,5 @@ public class Constant {
 
 	public static final String LOCALE_HEADER_NAME = "locale";
 	public static final String DATE_JSON_FORMAT = "yyyy-MM-dd";
+	public static final int MAX_DAYS_DURATION_RESERVATION = 3;
 }

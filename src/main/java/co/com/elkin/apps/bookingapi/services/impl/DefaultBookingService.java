@@ -1,10 +1,12 @@
 package co.com.elkin.apps.bookingapi.services.impl;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import co.com.elkin.apps.bookingapi.constants.Constant;
 import co.com.elkin.apps.bookingapi.dtos.BookingDTO;
 import co.com.elkin.apps.bookingapi.dtos.ReservationDTO;
 import co.com.elkin.apps.bookingapi.exception.APIServiceException;
@@ -33,7 +36,7 @@ public class DefaultBookingService implements IBookingService {
 
 	private static final int MAX_DAYS_RESERVATION_IN_ADVANCE = 30;
 
-	private static final int MAX_DAYS_DURATION_RESERVATION = 3;
+	private static final int MAX_AVAILABILITY_RANGE = 60;
 
 	private static final String START_DATE_NULL = "startDate null";
 
@@ -81,6 +84,16 @@ public class DefaultBookingService implements IBookingService {
 				.status(reservationCreated.getStatus()).build();
 	}
 
+	@Override
+	public List<LocalDate> searchAvailability() {
+		LOGGER.info("[DefaultBookingService][searchAvailability]");
+
+		var today = getCurrentOffsetDateTime();
+		var sixtyDaysLater = today.plusDays(MAX_AVAILABILITY_RANGE);
+		return reservationService.retrieveAvailabilityRange(Date.from(today.toInstant()),
+				Date.from(sixtyDaysLater.toInstant()));
+	}
+
 	private void validateDTO(final BookingDTO bookingDTO) throws APIServiceException {
 		if (Objects.nonNull(bookingDTO.getStartDate())
 				&& StringUtils.isEmpty(String.valueOf(bookingDTO.getStartDate()))) {
@@ -105,7 +118,7 @@ public class DefaultBookingService implements IBookingService {
 					APIServiceErrorCodes.BOOKING_START_DATE_AFTER_END_DATE_EXCEPTION);
 		}
 
-		if (getDifferenceDays(startDate, endDate) >= MAX_DAYS_DURATION_RESERVATION) {
+		if (getDifferenceDays(startDate, endDate) >= Constant.MAX_DAYS_DURATION_RESERVATION) {
 			throw new APIServiceException(HttpStatus.BAD_REQUEST.getReasonPhrase(),
 					APIServiceErrorCodes.BOOKING_MAX_DURATION_RESERVATION_EXCEPTION);
 		}

@@ -19,12 +19,16 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import co.com.elkin.apps.bookingapi.enums.ReservationStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "RESERVATION_TBL")
 public class Reservation implements Serializable {
 
