@@ -11,3 +11,14 @@ services:
       - "8080:8080"
     volumes:
       - ./app:/home
+    depends_on:
+      - dbpostgresql
+  dbpostgresql:
+    container_name: booking-postgresql
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=p0stgr3sql
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=bookingdb
