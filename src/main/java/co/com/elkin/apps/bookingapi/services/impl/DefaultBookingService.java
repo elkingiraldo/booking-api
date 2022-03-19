@@ -1,10 +1,13 @@
 package co.com.elkin.apps.bookingapi.services.impl;
 
-import java.time.Instant;
+import static co.com.elkin.apps.bookingapi.utils.DatesUtils.dateListBetweenTwoDates;
+import static co.com.elkin.apps.bookingapi.utils.DatesUtils.dateToLocalDate;
+import static co.com.elkin.apps.bookingapi.utils.DatesUtils.getCurrentOffsetDateTime;
+import static co.com.elkin.apps.bookingapi.utils.DatesUtils.getDifferenceDays;
+import static co.com.elkin.apps.bookingapi.utils.DatesUtils.getOffsetDateTime;
+import static co.com.elkin.apps.bookingapi.utils.DatesUtils.localDateToDate;
+
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -27,7 +30,7 @@ import co.com.elkin.apps.bookingapi.services.IRoomReservedService;
 import co.com.elkin.apps.bookingapi.services.IRoomService;
 import co.com.elkin.apps.bookingapi.services.IUserService;
 import co.com.elkin.apps.bookingapi.services.converters.IRoomConverterService;
-import co.com.elkin.apps.bookingapi.services.converters.IUserConverterService;
+import co.com.elkin.apps.bookingapi.services.converters.IUserConverterService;;
 
 @Service
 public class DefaultBookingService implements IBookingService {
@@ -71,6 +74,7 @@ public class DefaultBookingService implements IBookingService {
 
 		validateDTO(bookingDTO);
 		validateDates(bookingDTO);
+		validateAvailability(bookingDTO);
 
 		var price = getPrice(bookingDTO);
 		var user = userService.retrieveEntityByNickname(bookingDTO.getNickname());
@@ -82,6 +86,22 @@ public class DefaultBookingService implements IBookingService {
 				.endDate(reservationCreated.getEndDate()).reservationId(String.valueOf(reservationCreated.getId()))
 				.totalPrice(price).room(roomConverterService.toDTO(room)).user(userConverterService.toDTO(user))
 				.status(reservationCreated.getStatus()).build();
+	}
+
+	private void validateAvailability(final BookingDTO bookingDTO) throws APIServiceException {
+		var startLocalDate = dateToLocalDate(bookingDTO.getStartDate());
+		var endLocalDate = dateToLocalDate(bookingDTO.getEndDate());
+
+		var availabilityRange = reservationService.retrieveAvailabilityRange(
+				localDateToDate(startLocalDate.minusDays(Constant.MAX_DAYS_DURATION_RESERVATION)),
+				localDateToDate(endLocalDate.plusDays(Constant.MAX_DAYS_DURATION_RESERVATION)));
+
+		var list = dateListBetweenTwoDates(startLocalDate.plusDays(1), endLocalDate.plusDays(1));
+
+		if (!availabilityRange.containsAll(list)) {
+			throw new APIServiceException(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+					APIServiceErrorCodes.BOOKING_DATES_NOT_AVAILABLES_EXCEPTION);
+		}
 	}
 
 	@Override
@@ -139,22 +159,6 @@ public class DefaultBookingService implements IBookingService {
 		var currentRoomPrice = roomService.getCurrentPrice();
 
 		return currentRoomPrice * (differenceDays + 1);
-	}
-
-	private OffsetDateTime getOffsetDateTime(final Date date) {
-		LOGGER.info("[DefaultBookingService][getOffsetDateTime]");
-		return date.toInstant().atZone(ZoneId.systemDefault()).plusDays(1).truncatedTo(ChronoUnit.DAYS)
-				.toOffsetDateTime();
-	}
-
-	private OffsetDateTime getCurrentOffsetDateTime() {
-		LOGGER.info("[DefaultBookingService][getCurrentOffsetDateTime]");
-		return Instant.now().atZone(ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).toOffsetDateTime();
-	}
-
-	private long getDifferenceDays(final OffsetDateTime startDate, final OffsetDateTime endDate) {
-		LOGGER.info("[DefaultBookingService][getDifferenceDays]");
-		return startDate.until(endDate, ChronoUnit.DAYS);
 	}
 
 }

@@ -13,6 +13,7 @@ public enum APIServiceErrorCodes implements IAPIServiceErrorMsg {
 
 	GENERAL_EXCEPTION("general.exception", HttpStatus.INTERNAL_SERVER_ERROR),
 
+	BOOKING_DATES_NOT_AVAILABLES_EXCEPTION("booking.dates.not.availables.exception", HttpStatus.BAD_REQUEST),
 	BOOKING_END_DATE_NULL_EXCEPTION("booking.end.date.validation.exception", HttpStatus.UNPROCESSABLE_ENTITY),
 	BOOKING_MAX_DURATION_RESERVATION_EXCEPTION("booking.max.duration.reservation.exception", HttpStatus.BAD_REQUEST),
 	BOOKING_NICKNAME_CANT_BE_EMPTY_EXCEPTION("booking.nickname.cant.be.empty.exception",
@@ -22,8 +23,7 @@ public enum APIServiceErrorCodes implements IAPIServiceErrorMsg {
 	BOOKING_VALID_DAYS_RESERVATION_EXCEPTION("booking.valid.days.reservation.exception", HttpStatus.BAD_REQUEST),
 
 	USER_ALREADY_CREATED_EXCEPTION("user.already.created.exception", HttpStatus.CONFLICT),
-	USER_SHOULD_BE_REGISTERED_EXCEPTION(
-			"user.should.be.registered.exception", HttpStatus.NOT_FOUND),
+	USER_SHOULD_BE_REGISTERED_EXCEPTION("user.should.be.registered.exception", HttpStatus.NOT_FOUND),
 	USER_LAST_NAME_CANT_BE_EMPTY_EXCEPTION("user.last.name.cant.be.empty.exception", HttpStatus.UNPROCESSABLE_ENTITY),
 	USER_NAME_CANT_BE_EMPTY_EXCEPTION("user.name.cant.be.empty.exception", HttpStatus.UNPROCESSABLE_ENTITY),
 	USER_NICKNAME_CANT_BE_EMPTY_EXCEPTION("user.nickname.cant.be.empty.exception", HttpStatus.UNPROCESSABLE_ENTITY),

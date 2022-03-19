@@ -1,12 +1,14 @@
 package co.com.elkin.apps.bookingapi.services.impl;
 
+import static co.com.elkin.apps.bookingapi.utils.DatesUtils.dateListBetweenTwoDates;
+import static co.com.elkin.apps.bookingapi.utils.DatesUtils.dateToLocalDate;
+import static co.com.elkin.apps.bookingapi.utils.DatesUtils.localDateToDate;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -89,17 +91,5 @@ public class DefaultReservationService implements IReservationService {
 		}
 
 		return finalDates;
-	}
-
-	private List<LocalDate> dateListBetweenTwoDates(final LocalDate startLocalDate, final LocalDate endLocalDate) {
-		return startLocalDate.datesUntil(endLocalDate.plusDays(1)).collect(Collectors.toList());
-	}
-
-	private LocalDate dateToLocalDate(final Date date) {
-		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-	}
-
-	private Date localDateToDate(final LocalDate localDate) {
-		return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 }
