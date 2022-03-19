@@ -117,10 +117,10 @@ There are several endpoints:
 }
 ```
 * There are 4 possible states of the reservation:
-    * SCHEDULED :arrow_right: When the reservation is created.
-	* IN_PROGRESS :arrow_right: There is a reservation during the actual date.
-	* CANCELLED :arrow_right: When user cancelled the reservation.
-	* COMPLETED :arrow_right: When the reservation was finished correctly in the past.
+    * **SCHEDULED** :arrow_right: When the reservation is created.
+	* **IN_PROGRESS** :arrow_right: There is a reservation during the actual date.
+	* **CANCELLED** :arrow_right: When user cancelled the reservation.
+	* **COMPLETED** :arrow_right: When the reservation was finished correctly in the past.
 
 Additionally, there is a column for logical deletion.
 
