@@ -1,5 +1,8 @@
 package co.com.elkin.apps.bookingapi.services.converters.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +16,18 @@ import co.com.elkin.apps.bookingapi.services.converters.IUserConverterService;
 public class DefaultUserConverterService implements IUserConverterService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultUserConverterService.class);
+
+	@Override
+	public List<UserDTO> toDtos(final List<User> entities) {
+		LOGGER.info("[DefaultUserConverterService][toDTOs]");
+		final var dtoList = new ArrayList<UserDTO>();
+
+		for (final var User : entities) {
+			final var modelMapper = new ModelMapper();
+			dtoList.add(modelMapper.map(User, UserDTO.class));
+		}
+		return dtoList;
+	}
 
 	@Override
 	public UserDTO toDTO(User entity) {

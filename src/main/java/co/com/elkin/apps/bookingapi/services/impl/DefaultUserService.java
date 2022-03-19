@@ -1,5 +1,8 @@
 package co.com.elkin.apps.bookingapi.services.impl;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +37,16 @@ public class DefaultUserService implements IUserService {
 	public DefaultUserService(final UserRepository repository, final IUserConverterService converterService) {
 		this.repository = repository;
 		this.converterService = converterService;
+	}
+
+	@Override
+	public List<UserDTO> retrieveAllUsers() {
+		var findAll = repository.findAll();
+		if (findAll.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		return converterService.toDtos(findAll);
 	}
 
 	@Override

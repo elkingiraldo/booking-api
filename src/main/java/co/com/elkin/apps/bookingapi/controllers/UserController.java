@@ -1,9 +1,7 @@
 package co.com.elkin.apps.bookingapi.controllers;
 
-import co.com.elkin.apps.bookingapi.dtos.UserDTO;
-import co.com.elkin.apps.bookingapi.exception.APIServiceException;
-import co.com.elkin.apps.bookingapi.services.IUserService;
-import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import co.com.elkin.apps.bookingapi.dtos.UserDTO;
+import co.com.elkin.apps.bookingapi.exception.APIServiceException;
+import co.com.elkin.apps.bookingapi.services.IUserService;
+import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @CrossOrigin
@@ -33,17 +36,28 @@ public class UserController {
 	}
 
 	/**
-	 * @param userDTO this is a test parameter
-	 * @return some response description
-	 * @throws APIServiceException 
+	 * @return {@value ResponseEntity<List<UserDTO>>} with all DB users
+	 * @throws APIServiceException
 	 */
-	@Operation(summary = "Create a new user",
-			description = "This endpoint allows you to create new users")
+	@Operation(summary = "Retrieve All Users", description = "This endpoint allows you to retrieve all users")
+	@GetMapping
+	public ResponseEntity<List<UserDTO>> getAll(
+			@RequestHeader(value = "locale", required = false) final String locale) {
+		LOGGER.info("[UserController][getAll]");
+		var usersFound = userService.retrieveAllUsers();
+
+		return new ResponseEntity<>(usersFound, HttpStatus.OK);
+	}
+
+	/**
+	 * @param userDTO this the request DTO
+	 * @return {@value ResponseEntity<UserDTO>} with the created user
+	 * @throws APIServiceException
+	 */
+	@Operation(summary = "Create a new user", description = "This endpoint allows you to create new users")
 	@PostMapping
-	public ResponseEntity<UserDTO> create(
-			@RequestBody final UserDTO userDTO,
-			@RequestHeader(value = "locale", required = false) final String locale
-	) throws APIServiceException {
+	public ResponseEntity<UserDTO> create(@RequestBody final UserDTO userDTO,
+			@RequestHeader(value = "locale", required = false) final String locale) throws APIServiceException {
 		LOGGER.info("[UserController][create]");
 		var userCreated = userService.create(userDTO);
 
@@ -51,17 +65,14 @@ public class UserController {
 	}
 
 	/**
-	 * @param email this is a test parameter
-	 * @return some response description
-	 * @throws APIServiceException 
+	 * @param nickname this is the user nickname
+	 * @return {@value ResponseEntity<UserDTO>} with the found user
+	 * @throws APIServiceException
 	 */
-	@Operation(summary = "Retrieve an user",
-			description = "This endpoint allows you to tetrieve an user by nickname provided")
+	@Operation(summary = "Retrieve an user", description = "This endpoint allows you to tetrieve an user by nickname provided")
 	@GetMapping("/{nickname}")
-	public ResponseEntity<UserDTO> retrieve(
-			@PathVariable(value = "nickname") final String nickname,
-			@RequestHeader(value = "locale", required = false) final String locale
-	) throws APIServiceException {
+	public ResponseEntity<UserDTO> retrieve(@PathVariable(value = "nickname") final String nickname,
+			@RequestHeader(value = "locale", required = false) final String locale) throws APIServiceException {
 		LOGGER.info("[UserController][retrieve]");
 		var userFound = userService.retrieveByNickname(nickname);
 
