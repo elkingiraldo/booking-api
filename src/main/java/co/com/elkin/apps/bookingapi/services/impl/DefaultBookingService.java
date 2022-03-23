@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 
 import co.com.elkin.apps.bookingapi.constants.Constant;
 import co.com.elkin.apps.bookingapi.dtos.BookingDTO;
+import co.com.elkin.apps.bookingapi.dtos.CancelReservationDTO;
 import co.com.elkin.apps.bookingapi.dtos.ReservationDTO;
+import co.com.elkin.apps.bookingapi.entities.Reservation;
 import co.com.elkin.apps.bookingapi.exception.APIServiceException;
 import co.com.elkin.apps.bookingapi.exception.impl.APIServiceErrorCodes;
 import co.com.elkin.apps.bookingapi.services.IBookingService;
@@ -46,6 +48,8 @@ public class DefaultBookingService implements IBookingService {
 	private static final String END_DATE_NULL = "endDate null";
 
 	private static final String NICKNAME_NULL = "nickname null";
+
+	private static final String RESERVATION_ID_NULL = "nickname null";
 
 	private final IUserService userService;
 
@@ -88,6 +92,52 @@ public class DefaultBookingService implements IBookingService {
 				.status(reservationCreated.getStatus()).build();
 	}
 
+	@Override
+	public List<LocalDate> searchAvailability() {
+		LOGGER.info("[DefaultBookingService][searchAvailability]");
+
+		var today = getCurrentOffsetDateTime();
+		var sixtyDaysLater = today.plusDays(MAX_AVAILABILITY_RANGE);
+		return reservationService.retrieveAvailabilityRange(Date.from(today.toInstant()),
+				Date.from(sixtyDaysLater.toInstant()));
+	}
+
+	@Override
+	public ReservationDTO cancelReservation(final CancelReservationDTO cancelReservationDTO)
+			throws APIServiceException {
+		validateCancelDTO(cancelReservationDTO);
+		var reservationFound = validateUserReservation(cancelReservationDTO);
+		var reservationSaved = reservationService.cancelReservation(reservationFound);
+		var room = roomService.getRoom();
+		var user = userService.retrieveEntityByNickname(cancelReservationDTO.getNickname());
+
+		return ReservationDTO.builder().startDate(reservationSaved.getStartDate())
+				.endDate(reservationSaved.getEndDate()).reservationId(String.valueOf(reservationSaved.getId()))
+				.totalPrice(reservationSaved.getTotalPrice()).room(roomConverterService.toDTO(room))
+				.user(userConverterService.toDTO(user)).status(reservationSaved.getStatus()).build();
+	}
+
+	private Reservation validateUserReservation(final CancelReservationDTO cancelReservationDTO)
+			throws APIServiceException {
+		var reservation = reservationService.obtainById(cancelReservationDTO.getReservationId());
+		if (!cancelReservationDTO.getNickname().equals(reservation.getUser().getNickname())) {
+			throw new APIServiceException(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+					APIServiceErrorCodes.BOOKING_UNAUTHORIZED_USER_EXCEPTION);
+		}
+		return reservation;
+	}
+
+	private void validateCancelDTO(final CancelReservationDTO cancelReservationDTO) throws APIServiceException {
+		if (StringUtils.isEmpty(cancelReservationDTO.getNickname())) {
+			throw new APIServiceException(NICKNAME_NULL, APIServiceErrorCodes.BOOKING_NICKNAME_CANT_BE_EMPTY_EXCEPTION);
+		}
+
+		if (StringUtils.isEmpty(cancelReservationDTO.getReservationId())) {
+			throw new APIServiceException(RESERVATION_ID_NULL,
+					APIServiceErrorCodes.BOOKING_RESERVATION_ID_CANT_BE_EMPTY_EXCEPTION);
+		}
+	}
+
 	private void validateAvailability(final BookingDTO bookingDTO) throws APIServiceException {
 		var startLocalDate = dateToLocalDate(bookingDTO.getStartDate());
 		var endLocalDate = dateToLocalDate(bookingDTO.getEndDate());
@@ -104,16 +154,6 @@ public class DefaultBookingService implements IBookingService {
 		}
 	}
 
-	@Override
-	public List<LocalDate> searchAvailability() {
-		LOGGER.info("[DefaultBookingService][searchAvailability]");
-
-		var today = getCurrentOffsetDateTime();
-		var sixtyDaysLater = today.plusDays(MAX_AVAILABILITY_RANGE);
-		return reservationService.retrieveAvailabilityRange(Date.from(today.toInstant()),
-				Date.from(sixtyDaysLater.toInstant()));
-	}
-
 	private void validateDTO(final BookingDTO bookingDTO) throws APIServiceException {
 		if (Objects.nonNull(bookingDTO.getStartDate())
 				&& StringUtils.isEmpty(String.valueOf(bookingDTO.getStartDate()))) {
@@ -125,7 +165,7 @@ public class DefaultBookingService implements IBookingService {
 		}
 
 		if (StringUtils.isEmpty(bookingDTO.getNickname())) {
-			throw new APIServiceException(NICKNAME_NULL, APIServiceErrorCodes.USER_NICKNAME_CANT_BE_EMPTY_EXCEPTION);
+			throw new APIServiceException(NICKNAME_NULL, APIServiceErrorCodes.BOOKING_NICKNAME_CANT_BE_EMPTY_EXCEPTION);
 		}
 	}
 
@@ -160,5 +200,4 @@ public class DefaultBookingService implements IBookingService {
 
 		return currentRoomPrice * (differenceDays + 1);
 	}
-
 }

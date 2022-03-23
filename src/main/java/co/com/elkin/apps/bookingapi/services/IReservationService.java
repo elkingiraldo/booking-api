@@ -16,4 +16,8 @@ public interface IReservationService {
 			throws APIServiceException;
 
 	List<LocalDate> retrieveAvailabilityRange(final Date startDate, final Date endDate);
+
+	Reservation obtainById(final String id) throws APIServiceException;
+
+	Reservation cancelReservation(final Reservation reservation) throws APIServiceException;
 }

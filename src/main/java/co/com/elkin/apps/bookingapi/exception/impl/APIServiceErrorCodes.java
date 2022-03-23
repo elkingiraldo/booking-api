@@ -18,9 +18,14 @@ public enum APIServiceErrorCodes implements IAPIServiceErrorMsg {
 	BOOKING_MAX_DURATION_RESERVATION_EXCEPTION("booking.max.duration.reservation.exception", HttpStatus.BAD_REQUEST),
 	BOOKING_NICKNAME_CANT_BE_EMPTY_EXCEPTION("booking.nickname.cant.be.empty.exception",
 			HttpStatus.UNPROCESSABLE_ENTITY),
+	BOOKING_RESERVATION_ID_CANT_BE_EMPTY_EXCEPTION("booking.reservation.id.cant.be.empty.exception",
+			HttpStatus.UNPROCESSABLE_ENTITY),
 	BOOKING_START_DATE_AFTER_END_DATE_EXCEPTION("booking.start.date.after.end.date.exception", HttpStatus.BAD_REQUEST),
 	BOOKING_START_DATE_NULL_EXCEPTION("booking.start.date.validation.exception", HttpStatus.UNPROCESSABLE_ENTITY),
+	BOOKING_UNAUTHORIZED_USER_EXCEPTION("booking.unauthorized.user.exception", HttpStatus.BAD_REQUEST),
 	BOOKING_VALID_DAYS_RESERVATION_EXCEPTION("booking.valid.days.reservation.exception", HttpStatus.BAD_REQUEST),
+
+	RESERVATION_NOT_FOUND_REPOSITORY_EXCEPTION("reservation.not.found.repository.exception", HttpStatus.NOT_FOUND),
 
 	USER_ALREADY_CREATED_EXCEPTION("user.already.created.exception", HttpStatus.CONFLICT),
 	USER_SHOULD_BE_REGISTERED_EXCEPTION("user.should.be.registered.exception", HttpStatus.NOT_FOUND),

@@ -9,12 +9,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import co.com.elkin.apps.bookingapi.constants.Constant;
@@ -25,6 +27,7 @@ import co.com.elkin.apps.bookingapi.entities.RoomReserved;
 import co.com.elkin.apps.bookingapi.entities.User;
 import co.com.elkin.apps.bookingapi.enums.ReservationStatus;
 import co.com.elkin.apps.bookingapi.exception.APIServiceException;
+import co.com.elkin.apps.bookingapi.exception.impl.APIServiceErrorCodes;
 import co.com.elkin.apps.bookingapi.repositories.ReservationRepository;
 import co.com.elkin.apps.bookingapi.services.IReservationService;
 import co.com.elkin.apps.bookingapi.services.IRoomReservedService;
@@ -91,5 +94,26 @@ public class DefaultReservationService implements IReservationService {
 		}
 
 		return finalDates;
+	}
+
+	@Override
+	public Reservation obtainById(final String id) throws APIServiceException {
+		LOGGER.info("[DefaultReservationService][obtainReservationById]");
+		var byIdOptional = repository.findById(UUID.fromString(id));
+		if (byIdOptional.isEmpty()) {
+			throw new APIServiceException(HttpStatus.NOT_FOUND.getReasonPhrase(),
+					APIServiceErrorCodes.RESERVATION_NOT_FOUND_REPOSITORY_EXCEPTION);
+		}
+
+		return byIdOptional.get();
+	}
+
+	@Override
+	public Reservation cancelReservation(final Reservation reservation) throws APIServiceException {
+		LOGGER.info("[DefaultReservationService][update]");
+		reservation.setStatus(ReservationStatus.CANCELLED);
+		reservation.setTsUpdated(Timestamp.from(Instant.now()));
+
+		return repository.save(reservation);
 	}
 }

@@ -11,12 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.com.elkin.apps.bookingapi.dtos.BookingDTO;
+import co.com.elkin.apps.bookingapi.dtos.CancelReservationDTO;
 import co.com.elkin.apps.bookingapi.dtos.ReservationDTO;
 import co.com.elkin.apps.bookingapi.exception.APIServiceException;
 import co.com.elkin.apps.bookingapi.services.IBookingService;
@@ -55,9 +57,20 @@ public class BookingController {
 	@GetMapping("/room/availability")
 	public ResponseEntity<List<LocalDate>> getRoomAvailability(
 			@RequestHeader(value = "locale", required = false) final String locale) throws APIServiceException {
-		LOGGER.info("[RoomController][get]");
+		LOGGER.info("[BookingController][roomAvailability]");
 		var roomAvailability = bookingService.searchAvailability();
 
 		return new ResponseEntity<>(roomAvailability, HttpStatus.OK);
+	}
+
+	@Operation(summary = "Cancel a reservation", description = "This endpoint allows you to cancel a reservation")
+	@PutMapping("/reservation/cancel")
+	public ResponseEntity<ReservationDTO> cancelReservation(
+			@RequestBody final CancelReservationDTO cancelReservationDTO,
+			@RequestHeader(value = "locale", required = false) final String locale) throws APIServiceException {
+		LOGGER.info("[BookingController][cancelReservation]");
+		var cancelReservation = bookingService.cancelReservation(cancelReservationDTO);
+
+		return new ResponseEntity<>(cancelReservation, HttpStatus.OK);
 	}
 }
